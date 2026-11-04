@@ -1,20 +1,25 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- Забороняємо масштабування, щоб вікно виглядало як нативний додаток -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Вибір дати</title>
+    <title>Event Planning</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
-    <!-- Підключаємо стилі Flatpickr -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/airbnb.css">
+    
+    <script>
+        let tg = window.Telegram.WebApp;
+        // Динамічно завантажуємо темну або світлу тему для календаря
+        if (tg.colorScheme === 'dark') {
+            document.write('<link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">');
+        } else {
+            document.write('<link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/airbnb.css">');
+        }
+    </script>
     
     <style>
         body {
-            /* Використовуємо системний шрифт пристрою */
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--tg-theme-bg-color, #f4f4f5);
             color: var(--tg-theme-text-color, #000000);
@@ -29,7 +34,6 @@
         .card {
             width: 100%;
             max-width: 400px;
-            /* Картка трохи виділяється на фоні для об'єму */
             background-color: var(--tg-theme-secondary-bg-color, #ffffff);
             border-radius: 16px;
             padding: 24px 20px;
@@ -52,7 +56,8 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 12px;
+            letter-spacing: 1px;
             color: var(--tg-theme-hint-color, #777777);
         }
 
@@ -68,6 +73,7 @@
             outline: none;
             transition: all 0.3s ease;
             cursor: pointer;
+            -webkit-appearance: none; 
         }
 
         input:focus {
@@ -97,45 +103,40 @@
 </head>
 <body>
     <div class="card">
-        <h2>📅 Планування заходу</h2>
+        <h2>📅 Event Planning</h2>
         
         <div class="input-group">
-            <label>ОБЕРІТЬ ДАТУ</label>
-            <input type="text" id="datePicker" placeholder="Натисніть для вибору дати..." readonly>
+            <label>SELECT DATE</label>
+            <input type="text" id="datePicker" placeholder="Tap to select date..." readonly>
         </div>
 
         <div class="input-group">
-            <label>ОБЕРІТЬ ЧАС</label>
-            <input type="text" id="timePicker" placeholder="Натисніть для вибору часу..." readonly>
+            <label>SELECT TIME</label>
+            <input type="text" id="timePicker" placeholder="Tap to select time..." readonly>
         </div>
 
-        <button class="btn" id="submit-btn">✅ Зберегти вибір</button>
+        <button class="btn" id="submit-btn">✅ Save Selection</button>
     </div>
 
-    <!-- Підключаємо скрипти Flatpickr та українську локалізацію -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/uk.js"></script>
     
     <script>
-        let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Налаштування стильного календаря
+        // disableMobile: false вмикає нативні системні барабани на телефонах
         flatpickr("#datePicker", {
-            locale: "uk",
-            dateFormat: "d.m.Y", // Формат: 25.11.2026
-            minDate: "today",    // Блокуємо минулі дні
-            disableMobile: "true" // Примусово включаємо красивий дизайн замість браузерного
+            dateFormat: "Y-m-d", 
+            minDate: "today",    
+            disableMobile: false 
         });
 
-        // Налаштування стильного годинника
         flatpickr("#timePicker", {
             enableTime: true,
             noCalendar: true,
             dateFormat: "H:i",
             time_24hr: true,
-            disableMobile: "true",
-            minuteIncrement: 15 // Крок вибору хвилин (наприклад, 10:00, 10:15)
+            disableMobile: false, 
+            minuteIncrement: 15
         });
 
         document.getElementById('submit-btn').addEventListener('click', () => {
@@ -143,7 +144,7 @@
             let time = document.getElementById('timePicker').value;
             
             if(!date || !time) {
-                tg.showAlert("Будь ласка, оберіть і дату, і час!");
+                tg.showAlert("Please select both date and time!");
                 return;
             }
 
