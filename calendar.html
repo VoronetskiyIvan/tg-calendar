@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оберіть дату та час</title>
+    <!-- Підключаємо бібліотеку Telegram -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            /* Змінні Telegram для автоматичної адаптації під тему */
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        input {
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid var(--tg-theme-hint-color, #ccc);
+            border-radius: 8px;
+            background-color: var(--tg-theme-secondary-bg-color, #f1f1f1);
+            color: var(--tg-theme-text-color, #000000);
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 14px;
+            font-size: 16px;
+            background-color: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h2>Оберіть дату та час</h2>
+    
+    <label for="date">Дата заходу:</label>
+    <input type="date" id="date" required>
+    
+    <label for="time">Час заходу:</label>
+    <input type="time" id="time" required>
+    
+    <button id="submit-btn">Підтвердити вибір</button>
+
+    <script>
+        // Ініціалізуємо Telegram Web App
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // Розгортаємо вікно на максимум
+
+        document.getElementById('submit-btn').addEventListener('click', () => {
+            let date = document.getElementById('date').value;
+            let time = document.getElementById('time').value;
+            
+            if(!date || !time) {
+                tg.showAlert("Будь ласка, оберіть і дату, і час!");
+                return;
+            }
+
+            // Формуємо дані у форматі JSON і відправляємо в Python
+            let data = JSON.stringify({ date: date, time: time });
+            tg.sendData(data); 
+        });
+    </script>
+</body>
+</html>
