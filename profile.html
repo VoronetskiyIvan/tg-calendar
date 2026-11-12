@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>User Profile</title>
+    
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--tg-theme-bg-color, #f4f4f5);
+            color: var(--tg-theme-text-color, #000000);
+            padding: 20px 15px 30px 15px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+        }
+        
+        .card {
+            width: 100%;
+            max-width: 420px;
+            background-color: var(--tg-theme-secondary-bg-color, #ffffff);
+            border-radius: 16px;
+            padding: 24px 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            box-sizing: border-box;
+        }
+
+        h2 {
+            margin-top: 0;
+            text-align: center;
+            font-size: 22px;
+            margin-bottom: 24px;
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .row .input-group {
+            flex: 1;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 12px;
+            letter-spacing: 0.8px;
+            color: var(--tg-theme-hint-color, #777777);
+            text-transform: uppercase;
+        }
+
+        .sub-hint {
+            display: block;
+            font-size: 12px;
+            color: var(--tg-theme-hint-color, #777777);
+            margin-top: -2px;
+            margin-bottom: 8px;
+            line-height: 1.35;
+        }
+
+        .required {
+            color: #e53935;
+        }
+
+        .optional {
+            font-weight: normal;
+            font-size: 11px;
+            text-transform: none;
+            letter-spacing: 0;
+            opacity: 0.75;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 16px;
+            font-family: inherit;
+            border: 1px solid var(--tg-theme-hint-color, #e0e0e0);
+            border-radius: 12px;
+            background-color: var(--tg-theme-bg-color, #f9f9f9);
+            color: var(--tg-theme-text-color, #000000);
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.2s ease;
+            -webkit-appearance: none;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--tg-theme-button-color, #3390ec);
+            box-shadow: 0 0 0 2px rgba(51, 144, 236, 0.2);
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 12px 8px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid var(--tg-theme-hint-color, #e0e0e0);
+            border-radius: 12px;
+            background-color: var(--tg-theme-bg-color, #f9f9f9);
+            color: var(--tg-theme-text-color, #000000);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .toggle-btn.active {
+            background-color: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border-color: var(--tg-theme-button-color, #3390ec);
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .chip {
+            padding: 6px 11px;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 20px;
+            background-color: var(--tg-theme-bg-color, #f0f0f0);
+            color: var(--tg-theme-text-color, #333333);
+            border: 1px solid var(--tg-theme-hint-color, #d0d0d0);
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.15s ease;
+        }
+
+        .chip:active {
+            transform: scale(0.95);
+            background-color: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .info-box {
+            margin-top: 8px;
+            margin-bottom: 18px;
+            padding: 16px;
+            border-radius: 12px;
+            background-color: rgba(51, 144, 236, 0.1);
+            border-left: 4px solid var(--tg-theme-button-color, #3390ec);
+            font-size: 14px;
+            line-height: 1.45;
+        }
+
+        .info-box p {
+            margin: 0 0 10px 0;
+        }
+
+        .info-link {
+            display: inline-block;
+            font-weight: 600;
+            color: var(--tg-theme-link-color, #3390ec);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: var(--tg-theme-hint-color, #e0e0e0);
+            opacity: 0.25;
+            margin: 22px 0;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            margin-top: 10px;
+            font-size: 17px;
+            font-weight: bold;
+            background-color: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>👤 User Profile</h2>
+        
+        <div class="row">
+            <div class="input-group">
+                <label>First Name <span class="required">*</span></label>
+                <input type="text" id="firstName" placeholder="John">
+            </div>
+
+            <div class="input-group">
+                <label>Last Name <span class="required">*</span></label>
+                <input type="text" id="lastName" placeholder="Doe">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="input-group">
+                <label>Age (15+) <span class="optional">(optional)</span></label>
+                <input type="number" id="age" min="15" max="99" placeholder="e.g. 21">
+            </div>
+
+            <div class="input-group">
+                <label>Gender <span class="optional">(optional)</span></label>
+                <div class="toggle-group">
+                    <div class="toggle-btn" id="g-male" onclick="setGender('male')">M</div>
+                    <div class="toggle-btn" id="g-female" onclick="setGender('female')">F</div>
+                    <div class="toggle-btn" id="g-other" onclick="setGender('other')">Other</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Phone Number <span class="optional">(optional)</span></label>
+            <input type="tel" id="phone" placeholder="+45 00 00 00 00">
+        </div>
+
+        <div class="input-group">
+            <label>Email <span class="optional">(optional)</span></label>
+            <input type="email" id="email" placeholder="example@mail.com">
+        </div>
+
+        <!-- Питання про Kulturpas -->
+        <div class="input-group">
+            <label>Do you have a Kulturpas? <span class="optional">(optional)</span></label>
+            <div class="toggle-group">
+                <div class="toggle-btn" id="kp-yes" onclick="setKulturpas('yes')">Yes</div>
+                <div class="toggle-btn" id="kp-no" onclick="setKulturpas('no')">No</div>
+            </div>
+        </div>
+
+        <div class="input-group hidden" id="know-kp-section">
+            <label>Do you know what Kulturpas is?</label>
+            <div class="toggle-group">
+                <div class="toggle-btn" id="know-yes" onclick="setKnowKulturpas('yes')">Yes</div>
+                <div class="toggle-btn" id="know-no" onclick="setKnowKulturpas('no')">No</div>
+            </div>
+        </div>
+
+        <div class="info-box hidden" id="kp-info-box">
+            <p><b>Kulturpas</b> is an initiative in Denmark for young people (ages 15–24) providing funds for cultural, sports, and leisure activities.</p>
+            <a class="info-link" onclick="openKulturpasWebsite()">🔗 Visit Official Kulturpas Website →</a>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Харчові особливості / Алергії -->
+        <div class="input-group">
+            <label>Dietary Needs & Allergies <span class="optional">(optional)</span></label>
+            <span class="sub-hint">Used only for events with food (picnics, cooking, etc.). Tap a tag or type your own:</span>
+            <div class="chips">
+                <span class="chip" onclick="addTag('Vegetarian')">🌱 Vegetarian</span>
+                <span class="chip" onclick="addTag('Vegan')">🌿 Vegan</span>
+                <span class="chip" onclick="addTag('Lactose-free')">🥛 Lactose-free</span>
+                <span class="chip" onclick="addTag('Gluten-free')">🌾 Gluten-free</span>
+                <span class="chip" onclick="addTag('Nut allergy')">🥜 Nut allergy</span>
+            </div>
+            <textarea id="dietary" placeholder="Any allergies, food preferences, or special notes..."></textarea>
+        </div>
+
+        <!-- Обов'язковий дозвіл на фото/відео -->
+        <div class="input-group">
+            <label>Photo & Video Consent <span class="required">*</span></label>
+            <span class="sub-hint">Do you allow taking and publishing photos/videos with you from our events?</span>
+            <div class="toggle-group">
+                <div class="toggle-btn" id="photo-yes" onclick="setPhotoConsent('yes')">📸 Yes, I agree</div>
+                <div class="toggle-btn" id="photo-no" onclick="setPhotoConsent('no')">🚫 No</div>
+            </div>
+        </div>
+
+        <button class="btn" id="submit-btn">✅ Save Profile</button>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        const KULTURPAS_OFFICIAL_URL = "https://kulturpasinfo.dk/";
+
+        let gender = "";
+        let hasKulturpas = "";
+        let knowsKulturpas = "";
+        let photoConsent = "";
+
+        function setGender(val) {
+            // Повторний клік знімає вибір, оскільки поле необов'язкове
+            gender = (gender === val) ? "" : val;
+            document.getElementById('g-male').classList.toggle('active', gender === 'male');
+            document.getElementById('g-female').classList.toggle('active', gender === 'female');
+            document.getElementById('g-other').classList.toggle('active', gender === 'other');
+        }
+
+        function setKulturpas(val) {
+            hasKulturpas = val;
+            document.getElementById('kp-yes').classList.toggle('active', val === 'yes');
+            document.getElementById('kp-no').classList.toggle('active', val === 'no');
+
+            const knowSection = document.getElementById('know-kp-section');
+            const infoBox = document.getElementById('kp-info-box');
+
+            if (val === 'no') {
+                knowSection.classList.remove('hidden');
+                if (knowsKulturpas === 'no') {
+                    infoBox.classList.remove('hidden');
+                }
+            } else {
+                knowSection.classList.add('hidden');
+                infoBox.classList.add('hidden');
+                knowsKulturpas = "";
+                document.getElementById('know-yes').classList.remove('active');
+                document.getElementById('know-no').classList.remove('active');
+            }
+        }
+
+        function setKnowKulturpas(val) {
+            knowsKulturpas = val;
+            document.getElementById('know-yes').classList.toggle('active', val === 'yes');
+            document.getElementById('know-no').classList.toggle('active', val === 'no');
+
+            const infoBox = document.getElementById('kp-info-box');
+            if (val === 'no') {
+                infoBox.classList.remove('hidden');
+            } else {
+                infoBox.classList.add('hidden');
+            }
+        }
+
+        function setPhotoConsent(val) {
+            photoConsent = val;
+            document.getElementById('photo-yes').classList.toggle('active', val === 'yes');
+            document.getElementById('photo-no').classList.toggle('active', val === 'no');
+        }
+
+        function addTag(tagText) {
+            const area = document.getElementById('dietary');
+            const current = area.value.trim();
+            if (!current) {
+                area.value = tagText;
+            } else if (!current.toLowerCase().includes(tagText.toLowerCase())) {
+                area.value = current + ", " + tagText;
+            }
+        }
+
+        function openKulturpasWebsite() {
+            tg.openLink(KULTURPAS_OFFICIAL_URL);
+        }
+
+        // Автозаповнення при редагуванні
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('first_name')) document.getElementById('firstName').value = params.get('first_name');
+        if (params.get('last_name')) document.getElementById('lastName').value = params.get('last_name');
+        if (params.get('age')) document.getElementById('age').value = params.get('age');
+        if (params.get('gender')) setGender(params.get('gender'));
+        if (params.get('phone')) document.getElementById('phone').value = params.get('phone');
+        if (params.get('email')) document.getElementById('email').value = params.get('email');
+        if (params.get('has_kp')) setKulturpas(params.get('has_kp'));
+        if (params.get('knows_kp')) setKnowKulturpas(params.get('knows_kp'));
+        if (params.get('dietary')) document.getElementById('dietary').value = params.get('dietary');
+        if (params.get('photo_consent')) setPhotoConsent(params.get('photo_consent'));
+
+        // Підтягуємо ім'я з Telegram за замовчуванням
+        if (!document.getElementById('firstName').value && tg.initDataUnsafe?.user) {
+            document.getElementById('firstName').value = tg.initDataUnsafe.user.first_name || "";
+            document.getElementById('lastName').value = tg.initDataUnsafe.user.last_name || "";
+        }
+
+        document.getElementById('submit-btn').addEventListener('click', () => {
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const ageStr = document.getElementById('age').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const dietary = document.getElementById('dietary').value.trim();
+
+            if (!firstName || !lastName) {
+                tg.showAlert("Please enter both your First Name and Last Name!");
+                return;
+            }
+
+            if (ageStr) {
+                const ageNum = parseInt(ageStr, 10);
+                if (isNaN(ageNum) || ageNum < 15 || ageNum > 99) {
+                    tg.showAlert("Minimum age is 15 years old.");
+                    return;
+                }
+            }
+
+            if (!photoConsent) {
+                tg.showAlert("Please select an option for Photo & Video Consent!");
+                return;
+            }
+
+            tg.sendData(JSON.stringify({
+                type: "user_profile",
+                first_name: firstName,
+                last_name: lastName,
+                age: ageStr,
+                gender: gender,
+                phone: phone,
+                email: email,
+                has_kulturpas: hasKulturpas,
+                knows_kulturpas: hasKulturpas === 'yes' ? 'yes' : knowsKulturpas,
+                dietary: dietary,
+                photo_consent: photoConsent
+            }));
+        });
+    </script>
+</body>
+</html>
